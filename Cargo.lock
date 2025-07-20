@@ -91,17 +91,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bucklespring"
-version = "0.1.0"
-dependencies = [
- "device_query",
- "once_cell",
- "rdev",
- "rodio",
- "rust-embed",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -798,6 +787,17 @@ dependencies = [
  "hound",
  "lewton",
  "symphonia",
+]
+
+[[package]]
+name = "rust-bucklespring"
+version = "0.1.0"
+dependencies = [
+ "device_query",
+ "once_cell",
+ "rdev",
+ "rodio",
+ "rust-embed",
 ]
 
 [[package]]

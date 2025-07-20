@@ -52,7 +52,7 @@ jobs:
         run: |
           cargo build --release --target-dir target/linux
           mkdir -p dist
-          cp target/linux/release/bucklespring dist/rust-bucklespring
+          cp target/linux/release/rust-bucklespring dist/rust-bucklespring
           tar -czvf dist/rust-bucklespring-${{ env.VERSION }}-linux-x86_64.tar.gz -C dist rust-bucklespring
           rm dist/rust-bucklespring
 
@@ -81,7 +81,7 @@ jobs:
       - name: Build for Windows [x86_64]
         run: |
           cross build --release --target x86_64-pc-windows-gnu --target-dir target/windows
-          cp target/windows/x86_64-pc-windows-gnu/release/bucklespring.exe dist/rust-bucklespring-${{ env.VERSION }}-windows-x86_64.exe
+          cp target/windows/x86_64-pc-windows-gnu/release/rust-bucklespring.exe dist/rust-bucklespring-${{ env.VERSION }}-windows-x86_64.exe
           cd dist && zip rust-bucklespring-${{ env.VERSION }}-windows-x86_64.zip rust-bucklespring-${{ env.VERSION }}-windows-x86_64.exe && cd ..
 
       - name: Generate checksums

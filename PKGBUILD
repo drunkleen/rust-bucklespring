@@ -9,6 +9,9 @@ license=('GPL-2.0 license')
 depends=()
 makedepends=('rust' 'cargo')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+provides=('bucklespring')
+conflicts=('bucklespring')
+depends=('libx11' 'libxtst' 'libxcb' 'libxext' 'libxau' 'libxdmcp' 'alsa-lib')
 sha256sums=('SKIP')
 
 build() {
@@ -18,8 +21,8 @@ build() {
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
-  install -Dm755 "target/release/bucklespring" "$pkgdir/usr/bin/rbucklespring"
+  install -Dm755 "target/release/rust-bucklespring" "$pkgdir/usr/bin/rust-bucklespring"
   install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-  install -Dm644 "bucklespring.1" "$pkgdir/usr/share/man/man1/rbucklespring.1"
+  install -Dm644 "rust-bucklespring.1" "$pkgdir/usr/share/man/man1/rust-bucklespring.1"
   install -Dm644 "README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
 }
