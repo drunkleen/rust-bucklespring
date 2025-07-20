@@ -1,4 +1,4 @@
-Nostalgia RBucklespring keyboard sound now in Rust!
+Nostalgia bucklespring keyboard sound now in Rust!
 =====================================
 
 Copyright 2016 Ico Doornekamp
@@ -12,7 +12,7 @@ annoying the hell out of my coworkers.
 ![Model M](img/model-m.jpg)
 ![Buckle](img/buckle.gif)
 
-RBucklespring runs as a background process and plays back the sound of each key
+bucklespring runs as a background process and plays back the sound of each key
 pressed and released on your keyboard, just as if you were using an IBM
 Model-M. The sound of each key has carefully been sampled, and is played back
 while simulating the proper distance and direction for a realistic 3D sound
@@ -46,7 +46,7 @@ sudo dnf install alsa-lib-devel systemd-devel
 
 ```bash
 cargo build --release
-./target/release/RBucklespring
+./target/release/bucklespring
 ```
 
 ### 🪟 Windows Support
