@@ -11,7 +11,7 @@ categories = ["command-line-utilities", "multimedia::audio"]
 license = "GPL-2.0" 
 authors = ["DrunkLeen <snape@drunkleen.com>", "Ico Doornekamp <github@zevv.nl>"]
 exclude = ["target", ".git", ".github", ".vscode", "PKGBUILD", "*.zst", "dist", "screenshots"]
-
+include = ["src/**", "wav/**", "Cargo.toml", "README.md", "LICENSE"]
 
 [dependencies]
 rdev = "0.5.1"
