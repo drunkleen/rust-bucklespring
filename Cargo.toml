@@ -55,7 +55,7 @@ buildflags = ["--release"]
 
 
 [package.metadata.rpm.targets]
-bucklespring = { path = "/usr/bin/rust-bucklespring" }
+rust-bucklespring = { path = "/usr/bin/rust-bucklespring" }
 
 
 [package.metadata.rpm.target.x86_64-unknown-linux-gnu]
