@@ -1,0 +1,132 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    env:
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: 0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract tag name
+        run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Debug Environment
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "VERSION=$VERSION"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: |
+            x86_64-pc-windows-gnu
+            x86_64-unknown-linux-gnu
+            aarch64-unknown-linux-gnu
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip rpm gcc-aarch64-linux-gnu pkg-config
+          sudo apt-get install -y libasound2t64 libasound2-dev
+          sudo apt-get install -y libx11-dev libxi-dev libxtst-dev libxcb1-dev libxext-dev libxau-dev libxdmcp-dev
+
+      - name: Install packaging tools
+        run: |
+          cargo install cargo-deb
+          cargo install cargo-rpm
+          cargo install cross
+
+      - name: Build for Linux [x86_64]
+        run: |
+          cargo build --release --target-dir target/linux
+          mkdir -p dist
+          cp target/linux/release/bucklespring dist/rust-bucklespring
+          tar -czvf dist/rust-bucklespring-${{ env.VERSION }}-linux-x86_64.tar.gz -C dist rust-bucklespring
+          rm dist/rust-bucklespring
+
+      # - name: Build for Linux [aarch64]
+      #   run: |
+      #     cross build --release --target aarch64-unknown-linux-gnu --target-dir target/aarch64
+      #     cp target/aarch64/aarch64-unknown-linux-gnu/release/bucklespring dist/rust-bucklespring
+      #     cd dist && tar -czvf rust-bucklespring-${{ env.VERSION }}-linux-aarch64.tar.gz rust-bucklespring && rm rust-bucklespring && cd ..
+
+      - name: Build .deb package [x86_64]
+        run: |
+          cargo deb
+          mv target/debian/*.deb dist/rust-bucklespring-${{ env.VERSION }}-debian-x86_64.deb
+
+      # - name: Build .deb package [aarch64]
+      #   run: |
+      #     cross build --release --target aarch64-unknown-linux-gnu
+      #     cargo deb --no-build --no-strip --target aarch64-unknown-linux-gnu
+      #     cp target/aarch64-unknown-linux-gnu/debian/*.deb dist/rust-bucklespring-${{ env.VERSION }}-debian-aarch64.deb
+
+      - name: Build .rpm package [x86_64]
+        run: |
+          cargo rpm init && cargo rpm build
+          cp target/release/rpmbuild/RPMS/x86_64/*.rpm dist/rust-bucklespring-${{ env.VERSION }}-REHL-x86_64.rpm
+
+      - name: Build for Windows [x86_64]
+        run: |
+          cross build --release --target x86_64-pc-windows-gnu --target-dir target/windows
+          cp target/windows/x86_64-pc-windows-gnu/release/bucklespring.exe dist/rust-bucklespring-${{ env.VERSION }}-windows-x86_64.exe
+          cd dist && zip rust-bucklespring-${{ env.VERSION }}-windows-x86_64.zip rust-bucklespring-${{ env.VERSION }}-windows-x86_64.exe && cd ..
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cd ..
+
+      - name: Generate Release Notes
+        run: |
+          echo "# 🐧 rust-bucklespring ${VERSION}" > dist/RELEASE-NOTES.md
+          echo "" >> dist/RELEASE-NOTES.md
+          echo "## 📦 Available Downloads" >> dist/RELEASE-NOTES.md
+          echo "" >> dist/RELEASE-NOTES.md
+          echo "| File | Platform | Format | Install Instructions |" >> dist/RELEASE-NOTES.md
+          echo "|------|----------|--------|----------------------|" >> dist/RELEASE-NOTES.md
+
+          echo "| [rust-bucklespring-${VERSION}-linux-x86_64.tar.gz](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-linux-x86_64.tar.gz) | Linux (x86_64) | tar.gz | \`tar -xzvf\` and run \`./rust-bucklespring\` |" >> dist/RELEASE-NOTES.md
+          # echo "| [rust-bucklespring-${VERSION}-linux-aarch64.tar.gz](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-linux-aarch64.tar.gz) | Linux (ARM64) | tar.gz | \`tar -xzvf\` and run \`./rust-bucklespring\` |" >> dist/RELEASE-NOTES.md
+
+          echo "| [rust-bucklespring-${VERSION}-debian-x86_64.deb](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-debian-x86_64.deb) | Debian/Ubuntu (x86_64) | .deb | \`sudo dpkg -i\` |" >> dist/RELEASE-NOTES.md
+          # echo "| [rust-bucklespring-${VERSION}-debian-aarch64.deb](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-debian-aarch64.deb) | Debian/Ubuntu (ARM64) | .deb | \`sudo dpkg -i\` |" >> dist/RELEASE-NOTES.md
+
+          echo "| [rust-bucklespring-${VERSION}-REHL-x86_64.rpm](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-REHL-x86_64.rpm) | RHEL/CentOS/Fedora (x86_64) | .rpm | \`sudo rpm -i\` |" >> dist/RELEASE-NOTES.md
+
+          echo "| [rust-bucklespring-${VERSION}-windows-x86_64.zip](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-windows-x86_64.zip) | Windows (x86_64) | .zip | Extract and run \`rust-bucklespring-${VERSION}-windows-x86_64.exe\` |" >> dist/RELEASE-NOTES.md
+          echo "| [rust-bucklespring-${VERSION}-windows-x86_64.exe](https://github.com/drunkleen/rust-bucklespring/releases/download/${VERSION}/rust-bucklespring-${VERSION}-windows-x86_64.exe) | Windows (x86_64) | .exe | run \`rust-bucklespring-${VERSION}-windows-x86_64.exe\` |" >> dist/RELEASE-NOTES.md
+
+          echo "" >> dist/RELEASE-NOTES.md
+          echo "## 🔐 Checksums" >> dist/RELEASE-NOTES.md
+          echo '```' >> dist/RELEASE-NOTES.md
+          cat dist/SHA256SUMS.txt >> dist/RELEASE-NOTES.md
+          echo '```' >> dist/RELEASE-NOTES.md
+
+      - name: Generate CHANGELOG.md
+        run: |
+          echo "## Changes in ${{ env.VERSION }}" > dist/CHANGELOG.md
+          echo "" >> dist/CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0)..HEAD >> dist/CHANGELOG.md
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          body_path: dist/RELEASE-NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}

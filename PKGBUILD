@@ -18,8 +18,8 @@ build() {
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
-  install -Dm755 "target/release/bucklespring" "$pkgdir/usr/bin/bucklespring"
+  install -Dm755 "target/release/bucklespring" "$pkgdir/usr/bin/rbucklespring"
   install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-  install -Dm644 "bucklespring.1" "$pkgdir/usr/share/man/man1/bucklespring.1"
+  install -Dm644 "bucklespring.1" "$pkgdir/usr/share/man/man1/rbucklespring.1"
   install -Dm644 "README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
 }

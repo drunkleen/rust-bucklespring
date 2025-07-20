@@ -2,6 +2,13 @@
 name = "bucklespring"
 version = "0.1.0"
 edition = "2024"
+keywords = ["fun", "typing", "nostalgia", "bucklespring"]
+readme = "README.md"
+repository = "https://github.com/drunkleen/rust-bucklespring"
+description = "Nostalgia bucklespring keyboard sound now in Rust!"
+authors = ["DrunkLeen <snape@drunkleen.com>", "Ico Doornekamp <github@zevv.nl>"]
+license = "GPL-2.0" 
+
 
 [dependencies]
 rdev = "0.5.1"
@@ -9,3 +16,51 @@ once_cell = "1.19.0"
 device_query = "4.0.0"
 rodio = "0.17"
 rust-embed = "8.0.0"
+
+
+[package.metadata.dist]
+ci = true
+changelog = true
+include = ["README.md", "LICENSE"]
+
+
+[package.metadata.deb]
+name = "bucklespring"
+maintainer = "DrunkLeen <snape@drunkleen.com> , Ico Doornekamp <github@zevv.nl>"
+extended-description = "Nostalgia bucklespring keyboard sound now in Rust!"
+license-file = "LICENSE"
+section = "utils"
+priority = "optional"
+depends = [
+  "libasound2",
+  "libx11-6",
+  "libxtst6",
+  "libxcb1",
+  "libxext6",
+  "libxau6",
+  "libxdmcp6"
+]
+
+
+[package.metadata.rpm]
+name = "bucklespring"
+summary = "Nostalgia bucklespring keyboard sound now in Rust!"
+maintainer = "DrunkLeen <snape@drunkleen.com> , Ico Doornekamp <github@zevv.nl>"
+section = "utils"
+priority = "optional"
+
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+
+[package.metadata.rpm.targets]
+bucklespring = { path = "/usr/bin/bucklespring" }
+
+
+[package.metadata.rpm.target.x86_64-unknown-linux-gnu]
+arch = "x86_64"
+
+
+# [package.metadata.rpm.target.aarch64-unknown-linux-gnu]
+# arch = "aarch64"
