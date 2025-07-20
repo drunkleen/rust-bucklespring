@@ -6,6 +6,13 @@ use rdev::listen;
 use std::env::consts::OS;
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.iter().any(|arg| arg == "-v" || arg == "--version") {
+        println!("bucklespring {}", env!("CARGO_PKG_VERSION"));
+        return;
+    }
+
     // Cross-platform OS detection
     if OS == "windows" {
         println!("Running on Windows...");
