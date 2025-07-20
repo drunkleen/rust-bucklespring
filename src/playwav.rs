@@ -1,8 +1,9 @@
-use rodio::Decoder;
+use rodio::{Decoder, OutputStream, Sink};
 use std::error::Error;
-use std::fs::File;
-use std::io::BufReader;
 use std::thread;
+use std::io::Cursor;
+
+use crate::embed::Asset;
 
 /// Spawns a new thread to play a sound associated with the given key.
 ///
@@ -27,40 +28,47 @@ pub fn play(key: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Play a sound from a wav file
-//
-/// The filename is constructed by appending the key to `wav/` and adding a `.wav` extension.
-/// If the constructed file does not exist, it will fall back to a certain key if the key has the
-/// form `<key>-<num>`.
+/// Play a sound from an embedded `.wav` file.
 ///
-/// The fallback key is `63-<num>`.
+/// The sound is loaded at runtime from assets embedded at compile time using the `rust-embed` crate.
+/// The filename is constructed by appending `.wav` to the given key (e.g. `01-0.wav`, `e01d-1.wav`, etc.).
 ///
-/// If the fallback file does not exist either, the function will return `Ok(())` and not treat it
-/// as an error.
+/// If the specified embedded file does not exist, the function attempts to fall back to a default
+/// key with the form `63-<suffix>`, where `<suffix>` is typically `"0"` (key press) or `"1"` (release).
 ///
-/// The function will spawn a new thread and return immediately.
+/// If neither the original file nor the fallback is found, the function will return `Ok(())`
+/// and not treat it as an error. The function always plays sounds synchronously and blocks
+/// until playback ends.
 fn play_sound(key: &str) -> Result<(), Box<dyn Error>> {
-    let file_path = format!("wav/{}.wav", key);
+    let file_name = format!("{}.wav", key);
 
-    if !std::path::Path::new(&file_path).exists() {
-        let fallback = "63";
-        let fallback_key = format!("{}-{}", fallback, key.split('-').nth(1).unwrap_or("0"));
-        let fallback_path = format!("wav/{}.wav", fallback_key);
+    if let Some(content) = Asset::get(&file_name) {
+        let (_stream, stream_handle) = OutputStream::try_default()?;
+        let sink = Sink::try_new(&stream_handle)?;
 
-        if std::path::Path::new(&fallback_path).exists() {
-            return play_sound(&fallback_key);
+        let cursor = Cursor::new(content.data);
+        let source = Decoder::new(cursor)?;
+
+        sink.append(source);
+        sink.sleep_until_end();
+        return Ok(());
+    } else {
+        // Fallback logic
+        if let Some(suffix) = key.split('-').nth(1) {
+            let fallback_key = format!("63-{}", suffix);
+            let fallback_file = format!("{}.wav", fallback_key);
+
+            if let Some(fallback) = Asset::get(&fallback_file) {
+                let (_stream, stream_handle) = OutputStream::try_default()?;
+                let sink = Sink::try_new(&stream_handle)?;
+
+                let cursor = Cursor::new(fallback.data);
+                let source = Decoder::new(cursor)?;
+
+                sink.append(source);
+                sink.sleep_until_end();
+            }
         }
-        return Ok(()); // not treating as an error
+        return Ok(());
     }
-
-    let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
-    let sink = rodio::Sink::try_new(&stream_handle)?;
-
-    let file = File::open(&file_path)?;
-    let source = Decoder::new(BufReader::new(file))?;
-
-    sink.append(source);
-    sink.sleep_until_end();
-
-    Ok(())
 }

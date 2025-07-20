@@ -1,3 +1,4 @@
+mod embed;
 mod callback;
 mod playwav;
 

@@ -1,5 +1,5 @@
 [package]
-name = "RBucklespring"
+name = "bucklespring"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,3 +8,4 @@ rdev = "0.5.1"
 once_cell = "1.19.0"
 device_query = "4.0.0"
 rodio = "0.17"
+rust-embed = "8.0.0"
