@@ -18,6 +18,32 @@ Model-M. The sound of each key has carefully been sampled, and is played back
 while simulating the proper distance and direction for a realistic 3D sound
 palette of pure nostalgic bliss.
 
+### Installation
+
+Arch Linux:
+
+```bash
+yay -S rust-bucklespring
+# or 
+paru -S rust-bucklespring
+```
+
+Debian/Ubuntu(x86_64):
+
+```bash
+wget https://github.com/drunkleen/rust-bucklespring/releases/download/v0.1.0/rust-bucklespring-v0.1.0-debian-x86_64.deb -O rust-bucklespring.deb
+
+sudo dpkg -i rust-bucklespring.deb
+```
+
+Fedora/RHEL(x86_64):
+
+```bash
+wget https://github.com/drunkleen/rust-bucklespring/releases/download/v0.1.0/rust-bucklespring-v0.1.0-REHL-x86_64.rpm -O rust-bucklespring.rpm
+
+sudo rpm -i rust-bucklespring.rpm
+```
+
 
 
 ### 🛠️ Build from source (Linux)
@@ -28,12 +54,6 @@ Debian/Ubuntu:
 
 ```bash
 sudo apt install libasound2-dev libudev-dev
-```
-
-Arch Linux:
-
-```bash
-sudo pacman -S alsa-lib libudev
 ```
 
 Fedora:
@@ -49,13 +69,6 @@ cargo build --release
 ./target/release/bucklespring
 ```
 
-### 🪟 Windows Support
-
-**It works.** Just run:
-
-```powershell
-cargo run --release
-```
 
 ### 🪟 Windows Support
 

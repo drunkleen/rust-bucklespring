@@ -2,12 +2,15 @@
 name = "rust-bucklespring"
 version = "0.1.0"
 edition = "2024"
-keywords = ["fun", "typing", "nostalgia", "bucklespring"]
 readme = "README.md"
 repository = "https://github.com/drunkleen/rust-bucklespring"
+homepage = "https://github.com/drunkleen/rust-bucklespring"
 description = "Nostalgia bucklespring keyboard sound now in Rust!"
-authors = ["DrunkLeen <snape@drunkleen.com>", "Ico Doornekamp <github@zevv.nl>"]
+keywords = ["typing", "sound", "bucklespring", "keyboard", "nostalgia"]
+categories = ["command-line-utilities", "multimedia::audio"]
 license = "GPL-2.0" 
+authors = ["DrunkLeen <snape@drunkleen.com>", "Ico Doornekamp <github@zevv.nl>"]
+exclude = ["target", ".git", ".github", ".vscode", "PKGBUILD", "*.zst", "dist", "screenshots"]
 
 
 [dependencies]
@@ -16,6 +19,10 @@ once_cell = "1.19.0"
 device_query = "4.0.0"
 rodio = "0.17"
 rust-embed = "8.0.0"
+
+[[bin]]
+name = "rust-bucklespring"
+path = "src/main.rs"
 
 
 [package.metadata.dist]
@@ -55,7 +62,7 @@ buildflags = ["--release"]
 
 
 [package.metadata.rpm.targets]
-bucklespring = { path = "/usr/bin/rust-bucklespring" }
+rust-bucklespring = { path = "/usr/bin/rust-bucklespring" }
 
 
 [package.metadata.rpm.target.x86_64-unknown-linux-gnu]
